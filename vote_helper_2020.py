@@ -10,6 +10,7 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
+FILE_NAME = 'your_choice.json'
 LOGIN_URL = 'https://login.afreecatv.com/afreeca/login.php'
 CHROME_PATH = os.getenv('CHROME_PATH', '/Users/chulkim/my_utils/chromedriver')
 TARGET_URL = 'http://2020award.afreecatv.com/?page=vote'
@@ -27,8 +28,9 @@ driver.implicitly_wait(10)
 user_id = os.getenv('AFREECA_ID', '')
 user_pw = os.getenv('AFREECA_PW', '')
 
-if user_id == '' or user_pw:
+if user_id == '' or user_pw == '':
     print('id 또는 pw 를 입력해주세요..')
+    driver.close()
     exit()
 
 driver.find_element_by_css_selector('input#uid').send_keys(user_id)
@@ -56,7 +58,7 @@ for category_box in category_list:
 
 chosen_bj_for_category = dict()
 
-if not os.path.isfile('your_choice.json'):
+if not os.path.isfile(FILE_NAME):
     for key, items in bj_with_category.items():
         res = ''
 
@@ -74,7 +76,7 @@ if not os.path.isfile('your_choice.json'):
         chosen_bj_for_category[key] = items[chose_bj]
 
     try:
-        with open('your_choice.json', 'w') as choice_json:
+        with open(FILE_NAME, 'w') as choice_json:
             dump_choice_json = json.dumps(
                 chosen_bj_for_category, indent=4, ensure_ascii=False)
             choice_json.write(dump_choice_json)
@@ -83,7 +85,7 @@ if not os.path.isfile('your_choice.json'):
         driver.close()
 else:
     try:
-        with open('your_choice.json', 'r') as choice_json:
+        with open(FILE_NAME, 'r') as choice_json:
             chosen_bj_for_category = json.load(choice_json)
     except Exception as e:
         print(e)
